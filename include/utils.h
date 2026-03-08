@@ -1,5 +1,6 @@
 #pragma once
 #include <cstring>
+#include <limits>
 
 namespace utils {
     template <typename T1, typename T2>
@@ -8,5 +9,15 @@ namespace utils {
         T1 result;
         std::memcpy(&result, &from, sizeof(T1));
         return result;
+    }
+
+    inline bool fix_fail() {
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return true;
+        }
+
+        return false;
     }
 }
