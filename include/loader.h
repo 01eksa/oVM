@@ -5,6 +5,16 @@
 #include <memory>
 #include <format>
 #include "program.h"
+#include "config.h"
+
+#pragma pack(push, 1)
+struct OVMHeader {
+    uint32_t format;
+    uint16_t version_major, version_minor;
+    uint64_t data_size, code_size;
+    uint64_t stack_size, call_stack_size;
+};
+#pragma pack(pop)
 
 
 inline Program load(const std::string& filename) {
@@ -13,33 +23,26 @@ inline Program load(const std::string& filename) {
         throw std::runtime_error("Could not open file");
     }
 
-    uint32_t format;
-    ifile.read(reinterpret_cast<char*>(&format), sizeof(format));
-    if (format != 0x3E4D564F) {
-        throw std::runtime_error(std::format("Wrong format: {:x}", format));
+    OVMHeader header;
+    ifile.read(reinterpret_cast<char*>(&header), sizeof(header));
+
+    if (header.format != config::MAGIC) {
+        throw std::runtime_error(std::format("Wrong format: {:x}", header.format));
     }
 
-    uint16_t version_major, version_minor;
-    ifile.read(reinterpret_cast<char*>(&version_major), sizeof(version_major));
-    ifile.read(reinterpret_cast<char*>(&version_minor), sizeof(version_minor));
-
-    uint64_t data_size, code_size;
-    ifile.read(reinterpret_cast<char*>(&data_size), sizeof(data_size));
-    ifile.read(reinterpret_cast<char*>(&code_size), sizeof(code_size));
-
-    uint64_t stack_size, call_stack_size;
-    ifile.read(reinterpret_cast<char*>(&stack_size), sizeof(stack_size));
-    ifile.read(reinterpret_cast<char*>(&call_stack_size), sizeof(call_stack_size));
+    if (header.version_major > config::MAJOR || (header.version_major == config::MAJOR && header.version_minor > config::MINOR)) {
+        throw std::runtime_error("The binary version is newer than the virtual machine version. Please install the update.");
+    }
 
     Program p;
-    p.data_size = data_size;
-    p.code_size = code_size;
-    p.stack_size = stack_size;
-    p.call_stack_size = call_stack_size;
+    p.data_size = header.data_size;
+    p.code_size = header.code_size;
+    p.stack_size = header.stack_size;
+    p.call_stack_size = header.call_stack_size;
     p.data = std::make_unique<uint8_t[]>(p.data_size);
     p.code = std::make_unique<uint8_t[]>(p.code_size);
-    ifile.read(reinterpret_cast<char*>(p.data.get()), data_size);
-    ifile.read(reinterpret_cast<char*>(p.code.get()), code_size);
+    ifile.read(reinterpret_cast<char*>(p.data.get()), p.data_size);
+    ifile.read(reinterpret_cast<char*>(p.code.get()), p.code_size);
 
     return p;
 }
