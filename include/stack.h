@@ -55,19 +55,15 @@ public:
     }
 
     void dup() {
-        if (sp == max_capacity) {
-            throw std::overflow_error("Stack overflow");
-        }
+        if (sp == max_capacity)  throw std::overflow_error("Stack overflow");
+        if (sp == 0)  throw std::underflow_error("Stack underflow");
 
         const int64_t val = data[sp - 1];
         data[sp++] = val;
     }
 
     int64_t pop() {
-        if (sp == 0) {
-            throw std::underflow_error("Stack underflow");
-        }
-
+        if (sp == 0) throw std::underflow_error("Stack underflow");
         return data[--sp];
     }
 
