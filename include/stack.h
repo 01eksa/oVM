@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include <stdexcept>
 
@@ -9,25 +8,32 @@
 class Stack {
     
 public:
-    static constexpr std::size_t DEFAULT_CAPACITY = 512;
+    static constexpr uint64_t DEFAULT_CAPACITY = 512;
 
 private:
-    std::size_t sp = 0;
+    uint64_t sp = 0;
     int64_t* data = nullptr;
-    std::size_t max_capacity = DEFAULT_CAPACITY;
+    uint64_t max_capacity = DEFAULT_CAPACITY;
 
 public:
     explicit Stack() {
         data = new int64_t[max_capacity];
     }
 
-    explicit Stack(const std::size_t size) {
+    explicit Stack(const uint64_t size) {
         max_capacity = size;
         data = new int64_t[size];
     }
 
     ~Stack() {
         delete[] data;
+    }
+    
+    [[nodiscard]] int64_t look(const uint64_t index) const {
+        if (index < max_capacity)
+            return data[index];
+
+        throw std::out_of_range("Index out of range");
     }
 
     void push(const int64_t val) {
@@ -91,7 +97,7 @@ public:
         return reinterpret_cast<void*>(static_cast<uintptr_t>(peek()));
     }
 
-    [[nodiscard]] std::size_t get_SP() const {
+    [[nodiscard]] uint64_t get_SP() const {
         return sp;
     }
 };
