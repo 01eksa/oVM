@@ -76,6 +76,8 @@ void VM::init_dispatch() {
         dispatch[static_cast<uint8_t>(OpCode::SCANINT)] = &VM::op_scan_int;
         dispatch[static_cast<uint8_t>(OpCode::PRINTFLOAT)] = &VM::op_print_float;
         dispatch[static_cast<uint8_t>(OpCode::SCANFLOAT)] = &VM::op_scan_float;
+        dispatch[static_cast<uint8_t>(OpCode::ITOF)] = &VM::op_int_to_float;
+        dispatch[static_cast<uint8_t>(OpCode::FTOI)] = &VM::op_float_to_int;
 }
 
 void VM::init_vmcall_dispatch() {
