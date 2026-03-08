@@ -6,7 +6,7 @@ struct Registers {
     uint64_t    CP = 0;         // command pointer
     bool        BF = false;     // bool flag
     bool        EF = false;     // error flag
-    uint64_t    CR = 0;         // counter register
+    int64_t     CR = 0;         // counter register
 
     // VMCALL registers
     int64_t FR   = 0;
