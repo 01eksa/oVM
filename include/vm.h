@@ -55,7 +55,7 @@ public:
                 (this->*handler)();
             }
             else {
-                throw std::runtime_error(std::format("Unknown command: {:x}", op));
+                throw std::runtime_error(std::format("Unknown command: 0x{:x}", op));
             }
         }
 
