@@ -378,6 +378,11 @@ private:
     void op_div() {
         const auto right = stack.pop();
         const auto left = stack.pop();
+        if (right == 0) {
+            registers.EF = true;
+            stack.push(0);
+            return;
+        }
         
         stack.push(left / right);
     }
@@ -385,6 +390,11 @@ private:
     void op_mod() {
         const auto right = stack.pop();
         const auto left = stack.pop();
+        if (right == 0) {
+            registers.EF = true;
+            stack.push(0);
+            return;
+        }
 
         stack.push(left % right);
     }
@@ -428,6 +438,11 @@ private:
     void op_div_float() {
         const auto right = stack.pop_as<double>();
         const auto left = stack.pop_as<double>();
+        if (right == 0) {
+            registers.EF = true;
+            stack.push(0);
+            return;
+        }
 
         stack.push_as<double>(left / right);
     }
@@ -435,6 +450,11 @@ private:
     void op_mod_float() {
         const auto right = stack.pop_as<double>();
         const auto left = stack.pop_as<double>();
+        if (right == 0) {
+            registers.EF = true;
+            stack.push(0);
+            return;
+        }
 
         stack.push_as<double>(std::fmod(left, right));
     }
