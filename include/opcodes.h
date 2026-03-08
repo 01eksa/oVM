@@ -20,6 +20,7 @@ enum class OpCode : uint8_t {
     POP      = 0x11,
     DUP      = 0x12,
     PUSHDATA = 0x13,    // 9
+    POPDATA  = 0x14,    // 9
 
     // call stack
     PUSHCP = 0x20,
