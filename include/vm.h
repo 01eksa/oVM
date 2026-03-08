@@ -155,6 +155,15 @@ private:
         vmcall_dispatch[0x01] = &VM::vmcall_printstr;
     }
 
+    std::string debug_info() {
+        return std::format("CP: {}\nBF: {}\nEF: {}\nSP: {}",
+            registers.CP, registers.BF, registers.EF, stack.get_SP());
+    }
+
+    std::string error_message(std::string_view message) {
+        return std::format("{}\nDebug info:\n{}", message, debug_info());
+    }
+
     template <typename T>
     T eat() {
         T result;
@@ -296,7 +305,7 @@ private:
 
     void op_loop() {
         const auto addr = eat<uint64_t>();
-        if (--registers.CR)
+        if (--registers.CR > 0)
             registers.CP = addr;
     }
 
@@ -324,7 +333,18 @@ private:
             stack.push(ptr);
         }
         else
-            throw std::runtime_error("Offset larger than data size");
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
+    void op_pop_data() {
+        const auto offset = eat<uint64_t>();
+        const auto bits = stack.pop();
+        if (offset + sizeof(bits) < data_size) {
+            const auto ptr = &data[offset];
+            std::memcpy(ptr, &bits, sizeof(bits));
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
     // call stack
