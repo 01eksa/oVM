@@ -156,12 +156,12 @@ private:
         vmcall_dispatch[0x02] = &VM::vmcall_scanstr;
     }
 
-    std::string debug_info() {
+    std::string debug_info() const {
         return std::format("CP: {}\nBF: {}\nEF: {}\nSP: {}",
             registers.CP, registers.BF, registers.EF, stack.get_SP());
     }
 
-    std::string error_message(std::string_view message) {
+    std::string error_message(std::string_view message) const {
         return std::format("{}\nDebug info:\n{}", message, debug_info());
     }
 
@@ -311,7 +311,60 @@ private:
     }
 
     void op_debug() {
+        bool debug = true;
+        std::cout
+            << "Debug mode\n"
+            << "Commands:\n"
+            << "0 - quit debug mode\n"
+            << "1 - show registers\n"
+            << "2 - show stack\n";
 
+        while (debug) {
+            uint16_t command;
+            std::cout << "> ";
+            std::cin >> command;
+
+            if (io::fix_fail()) {
+                std::cout << "Incorrect command\n";
+                continue;
+            }
+
+            switch (command) {
+                case 0:
+                    debug = false;
+                    break;
+                case 1:
+                    std::cout
+                        << "SP:   " << stack.get_SP() << '\n'
+
+                        << "CP:   " << registers.CP << '\n'
+                        << "BF:   " << registers.BF << '\n'
+                        << "EF:   " << registers.EF << '\n'
+                        << "CR:   " << registers.CR << '\n'
+
+                        << "FR:   " << registers.FR << '\n'
+                        << "ARG1: " << registers.ARG1 << '\n'
+                        << "ARG2: " << registers.ARG2 << '\n'
+                        << "ARG3: " << registers.ARG3 << '\n'
+                        << "ARG4: " << registers.ARG4 << '\n'
+
+                        << "REG1: " << registers.REG1 << '\n'
+                        << "REG2: " << registers.REG2 << '\n'
+                        << "REG3: " << registers.REG3 << '\n'
+                        << "REG4: " << registers.REG4 << '\n';
+                    break;
+                case 2:
+                    std::cout << std::hex;
+                    for (uint64_t i = 0; i < stack.get_SP(); i++) {
+                        std::cout << stack.look(i) << ' ';
+                    }
+                    std::cout << std::dec << std::endl;
+                    break;
+                default:
+                    std::cout << "Unknown command\n";
+            }
+
+        }
     }
 
     // stack
