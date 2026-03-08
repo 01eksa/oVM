@@ -590,6 +590,20 @@ private:
         stack.push_as<double>(val);
     }
 
+    void op_int_to_float() {
+        const auto int_val = stack.pop();
+        const auto float_val = static_cast<double>(int_val);
+
+        stack.push_as<double>(float_val);
+    }
+
+    void op_float_to_int() {
+        const auto float_val = stack.pop_as<double>();
+        const auto int_val = static_cast<int64_t>(float_val);
+
+        stack.push(int_val);
+    }
+
     // VM calls
     void vmcall_printstr() {
         const auto ptr = static_cast<uintptr_t>(registers.ARG1);

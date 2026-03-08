@@ -55,6 +55,7 @@ enum class OpCode : uint8_t {
 
     INCF = 0x58,
     DECF = 0x59,
+
     ADDF = 0x5A,
     SUBF = 0x5B,
     MULF = 0x5C,
@@ -85,4 +86,6 @@ enum class OpCode : uint8_t {
     SCANINT     = 0x72,
     PRINTFLOAT  = 0x73,
     SCANFLOAT   = 0x74,
+    ITOF        = 0x75,
+    FTOI        = 0x76,
 };
