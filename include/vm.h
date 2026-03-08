@@ -26,10 +26,9 @@ namespace  io {
 
 class VM {
     using Handler = void(VM::*)();
-    using VMCallHandler = void(VM::*)();
 
     Handler dispatch[256] = {};
-    VMCallHandler vmcall_dispatch[256] = {};
+    Handler vmcall_dispatch[256] = {};
 
     std::unique_ptr<uint8_t[]> code;
     uint64_t code_size;
@@ -93,6 +92,7 @@ private:
         dispatch[static_cast<uint8_t>(OpCode::POP)] = &VM::op_pop;
         dispatch[static_cast<uint8_t>(OpCode::DUP)] = &VM::op_dup;
         dispatch[static_cast<uint8_t>(OpCode::PUSHDATA)] = &VM::op_push_data;
+        dispatch[static_cast<uint8_t>(OpCode::POPDATA)] = &VM::op_pop_data;
 
         dispatch[static_cast<uint8_t>(OpCode::PUSHCP)] = &VM::op_push_cp;
         dispatch[static_cast<uint8_t>(OpCode::POPCP)] = &VM::op_pop_cp;
@@ -153,6 +153,7 @@ private:
 
     void init_vmcall_dispatch() {
         vmcall_dispatch[0x01] = &VM::vmcall_printstr;
+        vmcall_dispatch[0x02] = &VM::vmcall_scanstr;
     }
 
     std::string debug_info() {
@@ -665,5 +666,12 @@ private:
     void vmcall_printstr() {
         const auto ptr = static_cast<uintptr_t>(registers.ARG1);
         std::cout << reinterpret_cast<const char*>(ptr);
+    }
+
+    void vmcall_scanstr() {
+        const auto ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_size = registers.ARG2;
+
+        std::cin.getline(ptr, buffer_size);
     }
 };
