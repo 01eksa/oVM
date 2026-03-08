@@ -237,7 +237,7 @@ private:
 
     void op_push_data() {
         const auto offset = eat<uint64_t>();
-        if (offset < data_size) {
+        if (offset <= data_size) {
             const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
             stack.push(ptr);
         }
@@ -248,7 +248,7 @@ private:
     void op_pop_data() {
         const auto offset = eat<uint64_t>();
         const auto bits = stack.pop();
-        if (offset + sizeof(bits) < data_size) {
+        if (offset + sizeof(bits) <= data_size) {
             const auto ptr = &data[offset];
             std::memcpy(ptr, &bits, sizeof(bits));
         }
@@ -615,5 +615,7 @@ private:
         const auto buffer_size = registers.ARG2;
 
         std::cin.getline(ptr, buffer_size);
+
+        if (utils::fix_fail()) registers.EF = true;
     }
 };
