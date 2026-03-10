@@ -1,5 +1,3 @@
-#include <cstdint>
-#include <cstring>
 #include <iostream>
 #include <memory>
 #include <string_view>
@@ -8,14 +6,12 @@
 #include "loader.h"
 
 int main(int argc, char* argv[]) {
-    std::string file;
     if (argc < 2) {
         std::cout << "Enter a file as an argument\n";
         return 0;
     }
-    else {
-        file = argv[1];
-    }
+
+    const std::string file = argv[1];
     Program p;
 
     try {
