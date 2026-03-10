@@ -66,12 +66,12 @@ private:
 
     void init_vmcall_dispatch();
 
-    std::string debug_info() const {
+    [[nodiscard]] std::string debug_info() const {
         return std::format("CP: {}\nBF: {}\nEF: {}\nSP: {}",
             registers.CP, registers.BF, registers.EF, stack.get_SP());
     }
 
-    std::string error_message(std::string_view message) const {
+    [[nodiscard]] std::string error_message(std::string_view message) const {
         return std::format("{}\nDebug info:\n{}", message, debug_info());
     }
 
@@ -340,6 +340,22 @@ private:
     void op_read() {
         const auto ptr = stack.pop_ptr();
         int64_t bits;
+        std::memcpy(&bits, ptr, sizeof(bits));
+
+        stack.push(bits);
+    }
+
+    void op_write_byte() {
+        const auto bits = stack.pop();
+        const auto ptr = stack.pop_ptr();
+        const auto byte = static_cast<uint8_t>(bits);
+
+        std::memcpy(ptr, &byte, sizeof(byte));
+    }
+
+    void op_read_byte() {
+        const auto ptr = stack.pop_ptr();
+        uint8_t bits;
         std::memcpy(&bits, ptr, sizeof(bits));
 
         stack.push(bits);

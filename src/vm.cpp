@@ -37,6 +37,8 @@ void VM::init_dispatch() {
         dispatch[static_cast<uint8_t>(OpCode::FREE)] = &VM::op_free;
         dispatch[static_cast<uint8_t>(OpCode::WRITE)] = &VM::op_write;
         dispatch[static_cast<uint8_t>(OpCode::READ)] = &VM::op_read;
+        dispatch[static_cast<uint8_t>(OpCode::WRITEB)] = &VM::op_write_byte;
+        dispatch[static_cast<uint8_t>(OpCode::READB)] = &VM::op_read_byte;
 
         dispatch[static_cast<uint8_t>(OpCode::INC)] = &VM::op_inc;
         dispatch[static_cast<uint8_t>(OpCode::DEC)] = &VM::op_dec;

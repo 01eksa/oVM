@@ -41,6 +41,8 @@ enum class OpCode : uint8_t {
     FREE  = 0x41,
     WRITE = 0x42,
     READ  = 0x43,
+    WRITEB = 0x44,
+    READB  = 0x45,
 
     // math
     INC = 0x50,
