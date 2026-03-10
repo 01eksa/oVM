@@ -23,7 +23,7 @@ inline Program load(const std::string& filename) {
         throw std::runtime_error("Could not open file");
     }
 
-    OVMHeader header;
+    OVMHeader header{};
     ifile.read(reinterpret_cast<char*>(&header), sizeof(header));
 
     if (header.format != config::MAGIC) {
@@ -41,8 +41,8 @@ inline Program load(const std::string& filename) {
     p.call_stack_size = header.call_stack_size;
     p.data = std::make_unique<uint8_t[]>(p.data_size);
     p.code = std::make_unique<uint8_t[]>(p.code_size);
-    ifile.read(reinterpret_cast<char*>(p.data.get()), p.data_size);
-    ifile.read(reinterpret_cast<char*>(p.code.get()), p.code_size);
+    ifile.read(reinterpret_cast<char*>(p.data.get()), static_cast<std::streamsize>(p.data_size));
+    ifile.read(reinterpret_cast<char*>(p.code.get()), static_cast<std::streamsize>(p.code_size));
 
     return p;
 }
