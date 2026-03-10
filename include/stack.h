@@ -89,7 +89,7 @@ public:
         return utils::convert<T>(peek());
     }
 
-    [[nodiscard]] void* peek_ptr() {
+    [[nodiscard]] void* peek_ptr() const {
         return reinterpret_cast<void*>(static_cast<uintptr_t>(peek()));
     }
 
