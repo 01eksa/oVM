@@ -237,7 +237,7 @@ private:
 
     void op_push_data() {
         const auto offset = eat<uint64_t>();
-        if (offset <= data_size) {
+        if (offset < data_size) {
             const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
             stack.push(ptr);
         }
