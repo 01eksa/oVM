@@ -586,6 +586,7 @@ private:
             registers.EF = true;
             val = 0;
         }
+        else std::cin.ignore();
 
         stack.push(val);
     }
@@ -602,6 +603,7 @@ private:
             registers.EF = true;
             val = 0;
         }
+        else std::cin.ignore();
 
         stack.push_as<double>(val);
     }
