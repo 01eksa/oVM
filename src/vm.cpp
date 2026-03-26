@@ -83,8 +83,15 @@ void VM::init_dispatch() {
 }
 
 void VM::init_vmcall_dispatch() {
-    vmcall_dispatch[0x01] = &VM::vmcall_printstr;
-    vmcall_dispatch[0x02] = &VM::vmcall_scanstr;
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::memcpy)] = &VM::vmcall_memcpy;
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::printstr)] = &VM::vmcall_printstr;
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::scanstr)] = &VM::vmcall_scanstr;
+
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::readfile)] = &VM::vmcall_readfile;
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::writefile)] = &VM::vmcall_writefile;
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::appendfile)] = &VM::vmcall_appendfile;
+
+    vmcall_dispatch[static_cast<uint8_t>(VMCall::randint)] = &VM::vmcall_randint;
 }
 
 void VM::op_debug() {
