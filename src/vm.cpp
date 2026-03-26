@@ -139,8 +139,8 @@ void VM::op_debug() {
                 break;
             case 2:
                 std::cout << std::hex;
-                for (uint64_t i = 0; i < stack.get_SP(); i++) {
-                    std::cout << "0x" << stack.look(i) << ' ';
+                for (uint64_t i = stack.get_SP() - 1; i < stack.get_SP(); i--) {
+                    std::cout << "0x" << stack.look(i) << '\n';
                 }
                 std::cout << std::dec << std::endl;
                 break;
