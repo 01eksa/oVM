@@ -10,13 +10,20 @@ struct Args {
     bool debug = false;
 };
 
+Args args;
+
+void wait() {
+    if (args.no_pause) return;
+    std::cout << "\nPress Enter to exit..." << std::endl;
+    std::cin.get();
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cout << "Enter a file as an argument\n";
+        wait();
         return 0;
     }
-
-    Args args;
 
     if (argc > 2) {
         for (int i = 2; i < argc; i++) {
@@ -34,6 +41,7 @@ int main(int argc, char* argv[]) {
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
+        wait();
         return 1;
     }
 
@@ -43,13 +51,10 @@ int main(int argc, char* argv[]) {
     }
     catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
+        wait();
         return 1;
     }
 
-    if (args.no_pause)  return 0;
-
-    std::cout << "\nPress Enter to exit..." << std::endl;
-    std::cin.get();
-
+    wait();
     return 0;
 }
