@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cmath>
 #include <format>
+#include <fstream>
+#include <filesystem>
 
 #include "stack.h"
 #include "callstack.h"
@@ -10,6 +12,7 @@
 #include "program.h"
 #include "memory.h"
 #include "utils.h"
+#include "random.h"
 
 class VM {
     using Handler = void(VM::*)();
@@ -172,7 +175,7 @@ private:
         if (const auto handler = vmcall_dispatch[registers.FR])
             (this->*handler)();
         else
-            throw std::runtime_error(std::format("Unknown vmcall: {:x}", registers.FR));
+            throw std::runtime_error(std::format("Unknown vmcall: 0x{:x}", registers.FR));
     }
 
     void op_call() {
@@ -623,17 +626,99 @@ private:
     }
 
     // VM calls
+    // Memory & IO
+    void vmcall_memcpy() {
+        const auto dest = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto src = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto n = registers.ARG3;
+
+        std::memcpy(dest, src, n);
+    }
+
     void vmcall_printstr() {
-        const auto ptr = static_cast<uintptr_t>(registers.ARG1);
-        std::cout << reinterpret_cast<const char*>(ptr);
+        const auto buffer = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        if (const auto size = registers.ARG2)
+            std::cout.write(buffer, size);
+        else
+            std::cout << buffer;
     }
 
     void vmcall_scanstr() {
-        const auto ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto buffer_size = registers.ARG2;
+        const auto buffer = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto size = registers.ARG2;
 
-        std::cin.getline(ptr, buffer_size);
+        std::cin.getline(buffer, size);
 
         if (utils::fix_fail()) registers.EF = true;
+    }
+
+    // files
+    void vmcall_readfile() {
+        const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto bytes_to_read = registers.ARG3;
+
+        std::ifstream file(file_name_ptr, std::ios::binary);
+        if (!file) {
+            registers.EF = true;
+            stack.push(0);
+            return;
+        }
+
+        file.read(buffer_ptr, bytes_to_read);
+        stack.push(file.gcount());
+
+        if (file.fail() && !file.eof()) {
+            registers.EF = true;
+        }
+    }
+
+    void vmcall_writefile() {
+        const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto bytes_to_write = registers.ARG3;
+
+        std::ofstream file(file_name_ptr, std::ios::binary);
+        if (!file) {
+            registers.EF = true;
+            return;
+        }
+
+        file.write(buffer_ptr, bytes_to_write);
+
+        if (file.fail()) {
+            registers.EF = true;
+        }
+    }
+
+    void vmcall_appendfile() {
+        const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto bytes_to_write = registers.ARG3;
+
+        std::ofstream file(file_name_ptr, std::ios::binary | std::ios::app);
+        if (!file) {
+            registers.EF = true;
+            return;
+        }
+
+        file.write(buffer_ptr, bytes_to_write);
+
+        if (file.fail()) {
+            registers.EF = true;
+        }
+    }
+
+    // math
+    void vmcall_randint() {
+        const auto start = registers.ARG1;
+        const auto end = registers.ARG2;
+        int64_t result;
+        if (start == 0 && end == 0)
+            result = Random::randint();
+        else
+            result = Random::randint(start, end);
+
+        stack.push(result);
     }
 };
