@@ -91,3 +91,18 @@ enum class OpCode : uint8_t {
     ITOF        = 0x75,
     FTOI        = 0x76,
 };
+
+enum class VMCall : uint8_t {
+    // Memory & IO
+    memcpy      = 0x00,
+    printstr    = 0x01,
+    scanstr     = 0x02,
+
+    // Files
+    readfile    = 0x10,
+    writefile   = 0x11,
+    appendfile  = 0x12,
+
+    // Math
+    randint     = 0x20,
+};
