@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     if (argc > 2) {
         for (int i = 2; i < argc; i++) {
-            std::string_view arg = argv[i];
+            const std::string_view arg = argv[i];
             if (arg == "--no-pause") args.no_pause = true;
             else if (arg == "--debug") args.debug = true;
         }
