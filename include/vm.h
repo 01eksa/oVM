@@ -17,8 +17,8 @@
 class VM {
     using Handler = void(VM::*)();
 
-    Handler dispatch[256] = {};
-    Handler vmcall_dispatch[256] = {};
+    Handler dispatch[256] = {nullptr};
+    Handler vmcall_dispatch[256] = {nullptr};
 
     std::unique_ptr<uint8_t[]> code;
     uint64_t code_size;
@@ -66,17 +66,12 @@ public:
 
 private:
     void init_dispatch();
-
     void init_vmcall_dispatch();
 
-    [[nodiscard]] std::string debug_info() const {
-        return std::format("CP: {}\nBF: {}\nEF: {}\nSP: {}",
-            registers.CP, registers.BF, registers.EF, stack.get_SP());
-    }
-
-    [[nodiscard]] std::string error_message(std::string_view message) const {
-        return std::format("{}\nDebug info:\n{}", message, debug_info());
-    }
+    [[nodiscard]] std::string format_VM_registers() const;
+    [[nodiscard]] std::string error_message(std::string_view message) const;
+    [[nodiscard]] std::string format_user_registers() const;
+    [[nodiscard]] std::string format_stack() const;
 
     template <typename T>
     T eat() {

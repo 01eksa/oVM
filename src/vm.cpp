@@ -94,6 +94,57 @@ void VM::init_vmcall_dispatch() {
     vmcall_dispatch[static_cast<uint8_t>(VMCall::randint)] = &VM::vmcall_randint;
 }
 
+std::string VM::format_VM_registers() const {
+    return std::format(
+        "\nVM Registers:\n"
+        "Name   | Value\n"
+        "{:<6} | {}\n"
+        "{:<6} | {}\n"
+        "{:<6} | {}\n"
+        "{:<6} | {}\n",
+        "CP", registers.CP,
+        "BF", registers.BF ? "true" : "false",
+        "EF", registers.EF ? "true" : "false",
+        "SP", stack.get_SP()
+        );
+}
+
+std::string VM::error_message(std::string_view message) const {
+    return std::format("{}\nDebug info:\n{}", message, format_VM_registers());
+}
+
+std::string VM::format_user_registers() const {
+    auto result = std::string(
+        "\nUser Registers:\n"
+        "Name   |  HEX        |  DEC\n");
+
+    for (int i = 0; i < Registers::REG_COUNT; i++) {
+        if (Registers::names[i].starts_with("RES")) continue;
+        result += std::format(
+            "{0:<6} | {1:+#011x} | {1:+#0d}\n",
+            Registers::names[i], registers.registers[i]
+            );
+    }
+
+    return result;
+}
+
+std::string VM::format_stack() const {
+    auto result = std::string(
+        "\nStack:\n"
+        "Index    |  HEX        |  DEC\n"
+        );
+
+    for (uint64_t i = stack.get_SP(); i > 0; i--) {
+        result += std::format(
+            "{0:<8} | {1:+#011x} | {1:+#0d}\n",
+            i, stack.look(i-1)
+            );
+    }
+
+    return result;
+}
+
 void VM::op_debug() {
     bool debug = true;
     std::cout
@@ -109,7 +160,7 @@ void VM::op_debug() {
         std::cin >> command;
 
         if (utils::fix_fail()) {
-            std::cout << "Incorrect command\n";
+            std::cout << "Invalid input\n";
             continue;
         }
 
@@ -118,31 +169,10 @@ void VM::op_debug() {
                 debug = false;
                 break;
             case 1:
-                std::cout
-                        << "SP:   " << stack.get_SP() << '\n'
-
-                        << "CP:   " << registers.CP << '\n'
-                        << "BF:   " << registers.BF << '\n'
-                        << "EF:   " << registers.EF << '\n'
-                        << "CR:   " << registers.CR << '\n'
-
-                        << "FR:   " << registers.FR << '\n'
-                        << "ARG1: " << registers.ARG1 << '\n'
-                        << "ARG2: " << registers.ARG2 << '\n'
-                        << "ARG3: " << registers.ARG3 << '\n'
-                        << "ARG4: " << registers.ARG4 << '\n'
-
-                        << "REG1: " << registers.REG1 << '\n'
-                        << "REG2: " << registers.REG2 << '\n'
-                        << "REG3: " << registers.REG3 << '\n'
-                        << "REG4: " << registers.REG4 << '\n';
+                std::cout << format_VM_registers() << format_user_registers();
                 break;
             case 2:
-                std::cout << std::hex;
-                for (uint64_t i = stack.get_SP() - 1; i < stack.get_SP(); i--) {
-                    std::cout << "0x" << stack.look(i) << '\n';
-                }
-                std::cout << std::dec << std::endl;
+                std::cout << format_stack();
                 break;
             default:
                 std::cout << "Unknown command\n";
