@@ -56,6 +56,13 @@ struct Registers {
             int64_t REG8;
         };
     };
+
+    static constexpr std::string_view names[Registers::REG_COUNT] = {
+        "FR", "ARG1", "ARG2", "ARG3", "ARG4", "ARG5", "ARG6", "ARG7", "ARG8", // 0x00-0x08
+        "RES9", "RES10", "RES11", "RES12", "RES13", "RES14", "RES15",         // 0x09-0x0F (Reserved)
+        "CR", "REG1", "REG2", "REG3", "REG4", "REG5", "REG6", "REG7", "REG8", // 0x10-0x18
+        "RES25", "RES26", "RES27", "RES28", "RES29", "RES30", "RES31"         // 0x19-0xFF (Reserved)
+    };
 };
 
 static_assert(offsetof(Registers, CR) == offsetof(Registers, registers[static_cast<int>(RegisterCode::CR)]));
