@@ -89,79 +89,20 @@ private:
 
     template <typename T>
     void write_reg(const T reg, const int64_t value) {
-        switch (static_cast<RegisterCode>(reg)) {
-            case RegisterCode::FR:
-                registers.FR = value;
-                break;
-            case RegisterCode::ARG1:
-                registers.ARG1 = value;
-                break;
-            case RegisterCode::ARG2:
-                registers.ARG2 = value;
-                break;
-            case RegisterCode::ARG3:
-                registers.ARG3 = value;
-                break;
-            case RegisterCode::ARG4:
-                registers.ARG4 = value;
-                break;
-            case RegisterCode::REG1:
-                registers.REG1 = value;
-                break;
-            case RegisterCode::REG2:
-                registers.REG2 = value;
-                break;
-            case RegisterCode::REG3:
-                registers.REG3 = value;
-                break;
-            case RegisterCode::REG4:
-                registers.REG4 = value;
-                break;
-            case RegisterCode::CR:
-                registers.CR = value;
-                break;
-            default:
-                registers.EF = true;
-        }
+        if (reg < 0 || reg >= Registers::REG_COUNT)
+            registers.EF = true;
+        else
+            registers.registers[reg] = value;
     }
 
     template <typename T>
     int64_t read_reg(T reg) {
         int64_t value = 0;
-        switch (static_cast<RegisterCode>(reg)) {
-            case RegisterCode::FR:
-                value = registers.FR;
-                break;
-            case RegisterCode::ARG1:
-                value = registers.ARG1;
-                break;
-            case RegisterCode::ARG2:
-                value = registers.ARG2;
-                break;
-            case RegisterCode::ARG3:
-                value = registers.ARG3;
-                break;
-            case RegisterCode::ARG4:
-                value = registers.ARG4;
-                break;
-            case RegisterCode::REG1:
-                value = registers.REG1;
-                break;
-            case RegisterCode::REG2:
-                value = registers.REG2;
-                break;
-            case RegisterCode::REG3:
-                value = registers.REG3;
-                break;
-            case RegisterCode::REG4:
-                value = registers.REG4;
-                break;
-            case RegisterCode::CR:
-                value = registers.CR;
-                break;
-            default:
-                registers.EF = true;
-        }
+
+        if (reg < 0 || reg >= Registers::REG_COUNT)
+            registers.EF = true;
+        else
+            value = registers.registers[reg];
 
         return value;
     }
