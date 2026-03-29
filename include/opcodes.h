@@ -37,12 +37,14 @@ enum class OpCode : uint8_t {
     MOV     = 0x37,     // 3
 
     // memory
-    ALLOC = 0x40,
-    FREE  = 0x41,
-    WRITE = 0x42,
-    READ  = 0x43,
-    WRITEB = 0x44,
-    READB  = 0x45,
+    ALLOC   = 0x40,
+    FREE    = 0x41,
+    WRITE   = 0x42,
+    READ    = 0x43,
+    WRITEB  = 0x44,
+    READB   = 0x45,
+    LOAD    = 0x46,     // 9
+    STORE   = 0x47,     // 9
 
     // math
     INC = 0x50,

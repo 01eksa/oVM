@@ -300,6 +300,30 @@ private:
         stack.push(bits);
     }
 
+    void op_load() {
+        const auto offset = eat<uint64_t>();
+        if (offset + sizeof(int64_t) <= data_size) {
+            const auto ptr = reinterpret_cast<void*>(&data[offset]);
+            int64_t bits;
+            std::memcpy(&bits, ptr, sizeof(bits));
+
+            stack.push(bits);
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
+    void op_store() {
+        const auto offset = eat<uint64_t>();
+        if (offset + sizeof(int64_t) <= data_size) {
+            const auto ptr = reinterpret_cast<void*>(&data[offset]);
+            const auto bits = stack.pop();
+            std::memcpy(ptr, &bits, sizeof(bits));
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
     // math
     void op_inc() {
         stack.push(stack.pop() + 1);
