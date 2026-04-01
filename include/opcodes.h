@@ -20,7 +20,8 @@ enum class OpCode : uint8_t {
     POP      = 0x11,
     DUP      = 0x12,
     PUSHDATA = 0x13,    // 9
-    POPDATA  = 0x14,    // 9
+    LOAD     = 0x14,    // 9
+    STORE    = 0x15,    // 9
 
     // call stack
     PUSHCP = 0x20,
@@ -43,8 +44,6 @@ enum class OpCode : uint8_t {
     READ    = 0x43,
     WRITEB  = 0x44,
     READB   = 0x45,
-    LOAD    = 0x46,     // 9
-    STORE   = 0x47,     // 9
 
     // math
     INC = 0x50,

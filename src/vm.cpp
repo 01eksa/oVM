@@ -18,7 +18,8 @@ void VM::init_dispatch() {
     dispatch[static_cast<uint8_t>(OpCode::POP)] = &VM::op_pop;
     dispatch[static_cast<uint8_t>(OpCode::DUP)] = &VM::op_dup;
     dispatch[static_cast<uint8_t>(OpCode::PUSHDATA)] = &VM::op_push_data;
-    dispatch[static_cast<uint8_t>(OpCode::POPDATA)] = &VM::op_pop_data;
+    dispatch[static_cast<uint8_t>(OpCode::LOAD)] = &VM::op_load;
+    dispatch[static_cast<uint8_t>(OpCode::STORE)] = &VM::op_store;
 
     dispatch[static_cast<uint8_t>(OpCode::PUSHCP)] = &VM::op_push_cp;
     dispatch[static_cast<uint8_t>(OpCode::POPCP)] = &VM::op_pop_cp;
@@ -31,8 +32,6 @@ void VM::init_dispatch() {
     dispatch[static_cast<uint8_t>(OpCode::CHECKEF)] = &VM::op_check_ef;
     dispatch[static_cast<uint8_t>(OpCode::CLEAREF)] = &VM::op_clear_ef;
     dispatch[static_cast<uint8_t>(OpCode::MOV)] = &VM::op_mov;
-    dispatch[static_cast<uint8_t>(OpCode::LOAD)] = &VM::op_load;
-    dispatch[static_cast<uint8_t>(OpCode::STORE)] = &VM::op_store;
 
 
     dispatch[static_cast<uint8_t>(OpCode::ALLOC)] = &VM::op_alloc;
