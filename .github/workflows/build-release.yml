@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+          strip build/oVM  
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-bin
+          path: build/oVM
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
+      - name: Locate and Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-bin
+          path: build/Release/oVM.exe
+
+  release:
+    permissions:
+      contents: write
+    needs: [ build-linux, build-windows ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Zip artifacts
+        run: |
+          # Прапорець -j (junk paths) дозволяє не зберігати структуру папок всередині архіву
+          zip -j oVM_linux_x64_${{ github.ref_name }}.zip artifacts/linux-bin/oVM
+          zip -j oVM_win_x64_${{ github.ref_name }}.zip artifacts/windows-bin/oVM.exe
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            oVM_linux_x64_${{ github.ref_name }}.zip
+            oVM_win_x64_${{ github.ref_name }}.zip
+          generate_release_notes: true 
