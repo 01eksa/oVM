@@ -1,8 +1,8 @@
 # oVM
 
-A hybrid stack-register virtual machine written in C++23.
+A hybrid stack-register virtual machine.
 
-oVM executes compiled `.ovm` binaries produced by [oASM](https://github.com/TODO/oASM) — a Python-based assembler for
+oVM executes compiled `.ovm` binaries produced by [oASM](https://github.com/01eksa/oASM) — a Python-based assembler for
 the oVM instruction set.
 
 ---
@@ -33,14 +33,24 @@ the oVM instruction set.
 
 ---
 
+#### Educational project.
+
+- Goal: create a virtual machine that supports integer and real arithmetic, conditional branches, memory operations, I/O
+  operations, and basic file I/O.
+- Limitations: the stack supports only 8-byte numbers. Multithreading, networking, and advanced file system
+  interaction (
+  deleting or moving files and folders, creating and renaming folders) are not implemented.
+
+---
+
 ## Architecture
 
 ### Execution Model
 
-oVM is a hybrid machine: it has a value stack for general computation (like a stack machine) and a register file for
-argument passing, return values, and temporary storage (like a register machine). The two approaches complement each
-other — the stack handles expression evaluation naturally, while registers provide a fast, named scratchpad without
-stack overhead.
+oVM is a hybrid machine: it has a value stack for general computation (like a stack machine) and a registers for boolean
+operations and error handling, argument passing, return values, and temporary storage (like a register machine).
+The two approaches complement each other — the stack handles expression evaluation naturally, while registers provide a
+fast, named scratchpad without stack overhead.
 
 Execution begins at byte offset `0` of the code segment. The **command pointer** (`CP`) advances through
 variable-length instructions. Most opcodes are 1 byte; those that carry an immediate operand (jump targets, push
