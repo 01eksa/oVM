@@ -49,9 +49,6 @@ public:
         running = true;
 
         while (running) {
-            if (registers.CP >= code_size) {
-                throw std::runtime_error("Command pointer out of range!");
-            }
             const auto op = eat<uint8_t>();
 
             if (const auto handler = dispatch[op]) {
@@ -75,6 +72,9 @@ private:
 
     template <typename T>
     T eat() {
+        if (registers.CP + sizeof(T) > code_size) {
+            throw std::runtime_error("Unexpected end of code segment!");
+        }
         T result;
         std::memcpy(&result, &code[registers.CP], sizeof(T));
         registers.CP += sizeof(T);
@@ -174,7 +174,7 @@ private:
         stack.dup();
     }
 
-    void op_push_data() {
+    void op_pea() {
         const auto offset = eat<uint64_t>();
         if (offset < data_size) {
             const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
@@ -262,11 +262,49 @@ private:
     }
 
     void op_mov() {
-        const auto to = eat<uint8_t>();
-        const auto from = eat<uint8_t>();
+        const auto target = eat<uint8_t>();
+        const auto source = eat<uint8_t>();
 
-        write_reg(to, read_reg(from));
+        write_reg(target, read_reg(source));
     }
+
+    void op_lea() {
+        const auto target = eat<uint8_t>();
+        const auto offset = eat<uint64_t>();
+        if (offset < data_size) {
+            const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
+            write_reg(target, ptr);
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
+    void op_load_reg() {
+        const auto target = eat<uint8_t>();
+        const auto offset = eat<uint64_t>();
+        if (offset + sizeof(int64_t) <= data_size) {
+            const auto ptr = reinterpret_cast<void*>(&data[offset]);
+            int64_t bits;
+            std::memcpy(&bits, ptr, sizeof(bits));
+
+            write_reg(target, bits);
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
+    void op_store_reg() {
+        const auto offset = eat<uint64_t>();
+        const auto source = eat<uint8_t>();
+        if (offset + sizeof(int64_t) <= data_size) {
+            const auto target = reinterpret_cast<void*>(&data[offset]);
+            const auto bits = read_reg(source);
+            std::memcpy(target, &bits, sizeof(bits));
+        }
+        else
+            throw std::runtime_error(error_message("Offset larger than data size"));
+    }
+
 
     // memory
     void op_alloc() {

@@ -17,21 +17,24 @@ void VM::init_dispatch() {
     dispatch[static_cast<uint8_t>(OpCode::PUSH)] = &VM::op_push;
     dispatch[static_cast<uint8_t>(OpCode::POP)] = &VM::op_pop;
     dispatch[static_cast<uint8_t>(OpCode::DUP)] = &VM::op_dup;
-    dispatch[static_cast<uint8_t>(OpCode::PUSHDATA)] = &VM::op_push_data;
+    dispatch[static_cast<uint8_t>(OpCode::PEA)] = &VM::op_pea;
     dispatch[static_cast<uint8_t>(OpCode::LOAD)] = &VM::op_load;
     dispatch[static_cast<uint8_t>(OpCode::STORE)] = &VM::op_store;
 
     dispatch[static_cast<uint8_t>(OpCode::PUSHCP)] = &VM::op_push_cp;
     dispatch[static_cast<uint8_t>(OpCode::POPCP)] = &VM::op_pop_cp;
 
-    dispatch[static_cast<uint8_t>(OpCode::SETREG)] = &VM::op_set_reg;
-    dispatch[static_cast<uint8_t>(OpCode::PUSHREG)] = &VM::op_push_reg;
-    dispatch[static_cast<uint8_t>(OpCode::POPREG)] = &VM::op_pop_reg;
-    dispatch[static_cast<uint8_t>(OpCode::INCREG)] = &VM::op_inc_reg;
-    dispatch[static_cast<uint8_t>(OpCode::DECREG)] = &VM::op_dec_reg;
+    dispatch[static_cast<uint8_t>(OpCode::SETR)] = &VM::op_set_reg;
+    dispatch[static_cast<uint8_t>(OpCode::PUSHR)] = &VM::op_push_reg;
+    dispatch[static_cast<uint8_t>(OpCode::POPR)] = &VM::op_pop_reg;
+    dispatch[static_cast<uint8_t>(OpCode::INCR)] = &VM::op_inc_reg;
+    dispatch[static_cast<uint8_t>(OpCode::DECR)] = &VM::op_dec_reg;
     dispatch[static_cast<uint8_t>(OpCode::CHECKEF)] = &VM::op_check_ef;
     dispatch[static_cast<uint8_t>(OpCode::CLEAREF)] = &VM::op_clear_ef;
     dispatch[static_cast<uint8_t>(OpCode::MOV)] = &VM::op_mov;
+    dispatch[static_cast<uint8_t>(OpCode::LEA)] = &VM::op_lea;
+    dispatch[static_cast<uint8_t>(OpCode::LOADR)] = &VM::op_load_reg;
+    dispatch[static_cast<uint8_t>(OpCode::STORER)] = &VM::op_store_reg;
 
 
     dispatch[static_cast<uint8_t>(OpCode::ALLOC)] = &VM::op_alloc;

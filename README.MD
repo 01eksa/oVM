@@ -47,7 +47,7 @@ the oVM instruction set.
 
 ### Execution Model
 
-oVM is a hybrid machine: it has a value stack for general computation (like a stack machine) and a registers for boolean
+oVM is a hybrid machine: it has a value stack for general computation (like a stack machine) and registers for boolean
 operations and error handling, argument passing, return values, and temporary storage (like a register machine).
 The two approaches complement each other — the stack handles expression evaluation naturally, while registers provide a
 fast, named scratchpad without stack overhead.
@@ -110,7 +110,7 @@ sections combined.
 
 There are three ways to access it:
 
-- **`PUSHDATA offset`** — pushes a raw pointer to `data[offset]` onto the stack. Use this to pass a buffer address to
+- **`PEA offset`** — pushes a raw pointer to `data[offset]` onto the stack. Use this to pass a buffer address to
   vmcalls (`printstr`, `scanstr`, `readfile`, etc.). Requires `offset < data_size`.
 - **`LOAD offset`** — reads 8 bytes at `data[offset]` and pushes the value onto the stack. Requires
   `offset + 8 ≤ data_size`.
@@ -194,27 +194,30 @@ it). The result of the operation is always pushed back onto the stack unless sta
 
 ### Stack Operations
 
-| Opcode     | Byte   | Size         | Stack | Description                                 |
-|------------|--------|--------------|-------|---------------------------------------------|
-| `PUSH`     | `0x10` | +8[`val`]    | —     | Push 64-bit immediate `val`                 |
-| `POP`      | `0x11` | 1            | val   | Discard `val`                               |
-| `DUP`      | `0x12` | 1            | val   | Push a copy of `val`                        |
-| `PUSHDATA` | `0x13` | +8[`offset`] | —     | Push pointer to `data[offset]`              |
-| `LOAD`     | `0x14` | +8[`offset`] | —     | Push 8 bytes at `data[offset]` as `int64_t` |
-| `STORE`    | `0x15` | +8[`offset`] | val   | Write `val` (8 bytes) to `data[offset]`     |
+| Opcode  | Byte   | Size         | Stack | Description                                 |
+|---------|--------|--------------|-------|---------------------------------------------|
+| `PUSH`  | `0x10` | +8[`val`]    | —     | Push 64-bit immediate `val`                 |
+| `POP`   | `0x11` | 1            | val   | Discard `val`                               |
+| `DUP`   | `0x12` | 1            | val   | Push a copy of `val`                        |
+| `PEA`   | `0x13` | +8[`offset`] | —     | Push pointer to `data[offset]`              |
+| `LOAD`  | `0x14` | +8[`offset`] | —     | Push 8 bytes at `data[offset]` as `int64_t` |
+| `STORE` | `0x15` | +8[`offset`] | val   | Write `val` (8 bytes) to `data[offset]`     |
 
 ### Register Operations
 
-| Opcode    | Byte   | Size               | Stack | Description                                  |
-|-----------|--------|--------------------|-------|----------------------------------------------|
-| `SETREG`  | `0x30` | +1[`reg`]+8[`val`] | —     | Set register `reg` to 64-bit immediate `val` |
-| `PUSHREG` | `0x31` | +1[`reg`]          | —     | Push value of `reg`                          |
-| `POPREG`  | `0x32` | +1[`reg`]          | val   | Write `val` to `reg`                         |
-| `INCREG`  | `0x33` | +1[`reg`]          | —     | Increment `reg` by 1                         |
-| `DECREG`  | `0x34` | +1[`reg`]          | —     | Decrement `reg` by 1                         |
-| `CHECKEF` | `0x35` | 1                  | —     | `BF = EF`                                    |
-| `CLEAREF` | `0x36` | 1                  | —     | `EF = false`                                 |
-| `MOV`     | `0x37` | +1[`reg`]+1[`reg`] | —     | `dst = src`                                  |
+| Opcode    | Byte   | Size                  | Stack | Description                                  |
+|-----------|--------|-----------------------|-------|----------------------------------------------|
+| `SETR`    | `0x30` | +1[`reg`]+8[`val`]    | —     | Set register `reg` to 64-bit immediate `val` |
+| `PUSHR`   | `0x31` | +1[`reg`]             | —     | Push value of `reg`                          |
+| `POPR`    | `0x32` | +1[`reg`]             | val   | Write `val` to `reg`                         |
+| `INCR`    | `0x33` | +1[`reg`]             | —     | Increment `reg` by 1                         |
+| `DECR`    | `0x34` | +1[`reg`]             | —     | Decrement `reg` by 1                         |
+| `CHECKEF` | `0x35` | 1                     | —     | `BF = EF`                                    |
+| `CLEAREF` | `0x36` | 1                     | —     | `EF = false`                                 |
+| `MOV`     | `0x37` | +1[`reg`]+1[`reg`]    | —     | `dst = src`                                  |
+| `LEA`     | `0x38` | +1[`reg`]+8[`offset`] | —     | `dst = offset`                               |
+| `LOADR`   | `0x39` | +1[`reg`]+8[`offset`] | —     | `dst = data[offset]`                         |
+| `STORER`  | `0x3a` | +8[`offset`]+1[`reg`] | —     | `data[offset] = src`                         |
 
 ### Memory Operations
 

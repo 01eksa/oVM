@@ -16,26 +16,29 @@ enum class OpCode : uint8_t {
     DEBUG   = 0x0a,
 
     // stack
-    PUSH     = 0x10,    // 9
-    POP      = 0x11,
-    DUP      = 0x12,
-    PUSHDATA = 0x13,    // 9
-    LOAD     = 0x14,    // 9
-    STORE    = 0x15,    // 9
+    PUSH    = 0x10,    // 9
+    POP     = 0x11,
+    DUP     = 0x12,
+    PEA     = 0x13,    // 9
+    LOAD    = 0x14,    // 9
+    STORE   = 0x15,    // 9
 
     // call stack
     PUSHCP = 0x20,
     POPCP  = 0x21,
 
     // registers
-    SETREG  = 0x30,     // 10
-    PUSHREG = 0x31,     // 2
-    POPREG  = 0x32,     // 2
-    INCREG  = 0x33,     // 2
-    DECREG  = 0x34,     // 2
+    SETR    = 0x30,     // 10
+    PUSHR   = 0x31,     // 2
+    POPR    = 0x32,     // 2
+    INCR    = 0x33,     // 2
+    DECR    = 0x34,     // 2
     CHECKEF = 0x35,
     CLEAREF = 0x36,
     MOV     = 0x37,     // 3
+    LEA     = 0x38,     // 10
+    LOADR   = 0x39,     // 10
+    STORER  = 0x3a,     // 10
 
     // memory
     ALLOC   = 0x40,
