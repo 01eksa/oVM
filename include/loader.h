@@ -30,7 +30,7 @@ inline Program load(const std::string& filename) {
         throw std::runtime_error(std::format("Wrong format: {:x}", header.format));
     }
 
-    if (header.version_major > config::MAJOR || (header.version_major == config::MAJOR && header.version_minor > config::MINOR)) {
+    if (header.version_major != config::MAJOR || header.version_minor > config::MINOR) {
         throw std::runtime_error("The binary version is newer than the virtual machine version. Please install the update.");
     }
 
