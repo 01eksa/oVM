@@ -15,12 +15,12 @@ jobs:
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
-          strip build/oVM  
+          strip build/vm  
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-bin
-          path: build/oVM
+          path: build/vm
 
   build-windows:
     runs-on: windows-latest
@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-bin
-          path: build/Release/oVM.exe
+          path: build/Release/vm.exe
 
   release:
     permissions:
@@ -52,8 +52,8 @@ jobs:
       - name: Zip artifacts
         run: |
           # Прапорець -j (junk paths) дозволяє не зберігати структуру папок всередині архіву
-          zip -j oVM_linux_x64_${{ github.ref_name }}.zip artifacts/linux-bin/oVM
-          zip -j oVM_win_x64_${{ github.ref_name }}.zip artifacts/windows-bin/oVM.exe
+          zip -j oVM_linux_x64_${{ github.ref_name }}.zip artifacts/linux-bin/vm
+          zip -j oVM_win_x64_${{ github.ref_name }}.zip artifacts/windows-bin/vm.exe
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
