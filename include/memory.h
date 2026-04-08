@@ -5,8 +5,7 @@
 #include <cstring>
 
 class Memory {
-    
-public:
+  public:
     [[nodiscard]] static void* alloc(const std::size_t size) {
         return malloc(size);
     }

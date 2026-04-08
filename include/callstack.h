@@ -3,23 +3,22 @@
 #include <stdexcept>
 
 class CallStack {
-    
-public:
+  public:
     static constexpr std::size_t DEFAULT_CAPACITY = 64;
 
-private:
-    std::size_t index = 0;
-    std::size_t* data = nullptr;
-    std::size_t max_capacity = DEFAULT_CAPACITY;
+  private:
+    std::size_t  index        = 0;
+    std::size_t* data         = nullptr;
+    std::size_t  max_capacity = DEFAULT_CAPACITY;
 
-public:
+  public:
     explicit CallStack() {
         data = new std::size_t[max_capacity];
     }
 
     explicit CallStack(const std::size_t size) {
         max_capacity = size;
-        data = new std::size_t[size];
+        data         = new std::size_t[size];
     }
 
     ~CallStack() {
@@ -54,4 +53,3 @@ public:
         return index;
     }
 };
-

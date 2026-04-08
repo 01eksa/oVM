@@ -1,45 +1,46 @@
 #pragma once
-#include <cstring>
-#include <iostream>
 #include <cmath>
+#include <cstring>
+#include <filesystem>
 #include <format>
 #include <fstream>
-#include <filesystem>
+#include <iostream>
 
-#include "stack.h"
 #include "callstack.h"
-#include "registers.h"
-#include "program.h"
 #include "memory.h"
-#include "utils.h"
+#include "program.h"
 #include "random.h"
+#include "registers.h"
+#include "stack.h"
+#include "utils.h"
 
 class VM {
-    using Handler = void(VM::*)();
+    using Handler = void (VM::*)();
 
-    Handler dispatch[256] = {nullptr};
+    Handler dispatch[256]        = {nullptr};
     Handler vmcall_dispatch[256] = {nullptr};
 
     std::unique_ptr<uint8_t[]> code;
-    uint64_t code_size;
+    uint64_t                   code_size;
 
     std::unique_ptr<uint8_t[]> data;
-    uint64_t data_size;
+    uint64_t                   data_size;
 
     Registers registers;
-    Stack stack;
+    Stack     stack;
     CallStack call_stack;
 
     bool running = false;
 
-public:
-    explicit VM(Program p) :
-    code(std::move(p.code)),
-    code_size(p.code_size),
-    data(std::move(p.data)),
-    data_size(p.data_size),
-    stack(p.stack_size ? p.stack_size : Stack::DEFAULT_CAPACITY),
-    call_stack(p.call_stack_size ? p.call_stack_size : CallStack::DEFAULT_CAPACITY) {}
+  public:
+    explicit VM(Program p)
+        : code(std::move(p.code)),
+          code_size(p.code_size),
+          data(std::move(p.data)),
+          data_size(p.data_size),
+          stack(p.stack_size ? p.stack_size : Stack::DEFAULT_CAPACITY),
+          call_stack(p.call_stack_size ? p.call_stack_size : CallStack::DEFAULT_CAPACITY) {
+    }
     ~VM() = default;
 
     void run() {
@@ -53,15 +54,13 @@ public:
 
             if (const auto handler = dispatch[op]) {
                 (this->*handler)();
-            }
-            else {
+            } else {
                 throw std::runtime_error(std::format("Unknown command: 0x{:x}", op));
             }
         }
-
     }
 
-private:
+  private:
     void init_dispatch();
     void init_vmcall_dispatch();
 
@@ -126,37 +125,32 @@ private:
 
     void op_jmp() {
         const auto addr = eat<uint64_t>();
-        registers.CP = addr;
+        registers.CP    = addr;
     }
 
     void op_jif() {
         const auto addr = eat<uint64_t>();
-        if (registers.BF)
-            registers.CP = addr;
+        if (registers.BF) registers.CP = addr;
     }
 
     void op_jnif() {
         const auto addr = eat<uint64_t>();
-        if (!registers.BF)
-            registers.CP = addr;
+        if (!registers.BF) registers.CP = addr;
     }
 
     void op_jef() {
         const auto addr = eat<uint64_t>();
-        if (registers.EF)
-            registers.CP = addr;
+        if (registers.EF) registers.CP = addr;
     }
 
     void op_jnef() {
         const auto addr = eat<uint64_t>();
-        if (!registers.EF)
-            registers.CP = addr;
+        if (!registers.EF) registers.CP = addr;
     }
 
     void op_loop() {
         const auto addr = eat<uint64_t>();
-        if (--registers.CR > 0)
-            registers.CP = addr;
+        if (--registers.CR > 0) registers.CP = addr;
     }
 
     void op_debug();
@@ -179,8 +173,7 @@ private:
         if (offset < data_size) {
             const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
             stack.push(ptr);
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
@@ -188,23 +181,21 @@ private:
         const auto offset = eat<uint64_t>();
         if (offset + sizeof(int64_t) <= data_size) {
             const auto ptr = reinterpret_cast<void*>(&data[offset]);
-            int64_t bits;
+            int64_t    bits;
             std::memcpy(&bits, ptr, sizeof(bits));
 
             stack.push(bits);
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
     void op_store() {
         const auto offset = eat<uint64_t>();
         if (offset + sizeof(int64_t) <= data_size) {
-            const auto ptr = reinterpret_cast<void*>(&data[offset]);
+            const auto ptr  = reinterpret_cast<void*>(&data[offset]);
             const auto bits = stack.pop();
             std::memcpy(ptr, &bits, sizeof(bits));
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
@@ -219,7 +210,7 @@ private:
 
     // registers
     void op_set_reg() {
-        const auto reg = eat<uint8_t>();
+        const auto reg   = eat<uint8_t>();
         const auto value = eat<int64_t>();
 
         write_reg(reg, value);
@@ -233,7 +224,7 @@ private:
     }
 
     void op_pop_reg() {
-        const auto reg = eat<uint8_t>();
+        const auto reg   = eat<uint8_t>();
         const auto value = stack.pop();
 
         write_reg(reg, value);
@@ -274,8 +265,7 @@ private:
         if (offset < data_size) {
             const auto ptr = static_cast<int64_t>(reinterpret_cast<uintptr_t>(&data[offset]));
             write_reg(target, ptr);
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
@@ -284,12 +274,11 @@ private:
         const auto offset = eat<uint64_t>();
         if (offset + sizeof(int64_t) <= data_size) {
             const auto ptr = reinterpret_cast<void*>(&data[offset]);
-            int64_t bits;
+            int64_t    bits;
             std::memcpy(&bits, ptr, sizeof(bits));
 
             write_reg(target, bits);
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
 
@@ -298,38 +287,36 @@ private:
         const auto source = eat<uint8_t>();
         if (offset + sizeof(int64_t) <= data_size) {
             const auto target = reinterpret_cast<void*>(&data[offset]);
-            const auto bits = read_reg(source);
+            const auto bits   = read_reg(source);
             std::memcpy(target, &bits, sizeof(bits));
-        }
-        else
+        } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
-
 
     // memory
     void op_alloc() {
         const auto size = stack.pop();
-        const auto ptr = Memory::alloc(size);
+        const auto ptr  = Memory::alloc(size);
 
         stack.push_ptr(ptr);
     }
 
     void op_free() {
         const auto ptr = stack.pop_ptr();
-        
+
         Memory::free(ptr);
     }
 
     void op_write() {
         const auto bits = stack.pop();
-        const auto ptr = stack.pop_ptr();
+        const auto ptr  = stack.pop_ptr();
 
         std::memcpy(ptr, &bits, sizeof(bits));
     }
 
     void op_read() {
         const auto ptr = stack.pop_ptr();
-        int64_t bits;
+        int64_t    bits;
         std::memcpy(&bits, ptr, sizeof(bits));
 
         stack.push(bits);
@@ -337,7 +324,7 @@ private:
 
     void op_write_byte() {
         const auto bits = stack.pop();
-        const auto ptr = stack.pop_ptr();
+        const auto ptr  = stack.pop_ptr();
         const auto byte = static_cast<uint8_t>(bits);
 
         std::memcpy(ptr, &byte, sizeof(byte));
@@ -345,7 +332,7 @@ private:
 
     void op_read_byte() {
         const auto ptr = stack.pop_ptr();
-        uint8_t bits;
+        uint8_t    bits;
         std::memcpy(&bits, ptr, sizeof(bits));
 
         stack.push(bits);
@@ -359,43 +346,43 @@ private:
     void op_dec() {
         stack.push(stack.pop() - 1);
     }
-    
+
     void op_add() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
-        
+        const auto left  = stack.pop();
+
         stack.push(left + right);
     }
-    
+
     void op_sub() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
-        
+        const auto left  = stack.pop();
+
         stack.push(left - right);
     }
-    
+
     void op_mul() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
-        
+        const auto left  = stack.pop();
+
         stack.push(left * right);
     }
-    
+
     void op_div() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
         if (right == 0) {
             registers.EF = true;
             stack.push(0);
             return;
         }
-        
+
         stack.push(left / right);
     }
 
     void op_mod() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
         if (right == 0) {
             registers.EF = true;
             stack.push(0);
@@ -407,7 +394,7 @@ private:
 
     void op_pow() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(static_cast<int64_t>(std::pow(left, right)));
     }
@@ -422,28 +409,28 @@ private:
 
     void op_add_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         stack.push_as<double>(left + right);
     }
 
     void op_sub_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         stack.push_as<double>(left - right);
     }
 
     void op_mul_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         stack.push_as<double>(left * right);
     }
 
     void op_div_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
         if (right == 0) {
             registers.EF = true;
             stack.push(0);
@@ -455,7 +442,7 @@ private:
 
     void op_mod_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
         if (right == 0) {
             registers.EF = true;
             stack.push(0);
@@ -467,7 +454,7 @@ private:
 
     void op_pow_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         stack.push_as<double>(std::pow(left, right));
     }
@@ -475,21 +462,21 @@ private:
     // bit operations
     void op_and() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(left & right);
     }
 
     void op_or() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(left | right);
     }
 
     void op_xor() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(left ^ right);
     }
@@ -500,14 +487,14 @@ private:
 
     void op_shl() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(left << right);
     }
 
     void op_shr() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         stack.push(left >> right);
     }
@@ -519,42 +506,42 @@ private:
 
     void op_cmp() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         registers.BF = left == right;
     }
 
     void op_cmplt() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         registers.BF = left < right;
     }
 
     void op_cmpgt() {
         const auto right = stack.pop();
-        const auto left = stack.pop();
+        const auto left  = stack.pop();
 
         registers.BF = left > right;
     }
 
     void op_cmp_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         registers.BF = left == right;
     }
 
     void op_cmplt_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         registers.BF = left < right;
     }
 
     void op_cmpgt_float() {
         const auto right = stack.pop_as<double>();
-        const auto left = stack.pop_as<double>();
+        const auto left  = stack.pop_as<double>();
 
         registers.BF = left > right;
     }
@@ -574,9 +561,9 @@ private:
 
         if (utils::fix_fail()) {
             registers.EF = true;
-            val = 0;
-        }
-        else std::cin.ignore();
+            val          = 0;
+        } else
+            std::cin.ignore();
 
         stack.push(val);
     }
@@ -591,15 +578,15 @@ private:
 
         if (utils::fix_fail()) {
             registers.EF = true;
-            val = 0;
-        }
-        else std::cin.ignore();
+            val          = 0;
+        } else
+            std::cin.ignore();
 
         stack.push_as<double>(val);
     }
 
     void op_int_to_float() {
-        const auto int_val = stack.pop();
+        const auto int_val   = stack.pop();
         const auto float_val = static_cast<double>(int_val);
 
         stack.push_as<double>(float_val);
@@ -607,7 +594,7 @@ private:
 
     void op_float_to_int() {
         const auto float_val = stack.pop_as<double>();
-        const auto int_val = static_cast<int64_t>(float_val);
+        const auto int_val   = static_cast<int64_t>(float_val);
 
         stack.push(int_val);
     }
@@ -616,8 +603,8 @@ private:
     // Memory & IO
     void vmcall_memcpy() {
         const auto dest = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto src = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG2));
-        const auto n = registers.ARG3;
+        const auto src  = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto n    = registers.ARG3;
 
         std::memcpy(dest, src, n);
     }
@@ -632,7 +619,7 @@ private:
 
     void vmcall_scanstr() {
         const auto buffer = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto size = registers.ARG2;
+        const auto size   = registers.ARG2;
 
         std::cin.getline(buffer, size);
 
@@ -642,7 +629,7 @@ private:
     // files
     void vmcall_readfile() {
         const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto buffer_ptr    = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
         const auto bytes_to_read = registers.ARG3;
 
         std::ifstream file(file_name_ptr, std::ios::binary);
@@ -661,8 +648,8 @@ private:
     }
 
     void vmcall_writefile() {
-        const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto file_name_ptr  = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_ptr     = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
         const auto bytes_to_write = registers.ARG3;
 
         std::ofstream file(file_name_ptr, std::ios::binary);
@@ -679,8 +666,8 @@ private:
     }
 
     void vmcall_appendfile() {
-        const auto file_name_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
-        const auto buffer_ptr = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
+        const auto file_name_ptr  = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG1));
+        const auto buffer_ptr     = reinterpret_cast<char*>(static_cast<uintptr_t>(registers.ARG2));
         const auto bytes_to_write = registers.ARG3;
 
         std::ofstream file(file_name_ptr, std::ios::binary | std::ios::app);
@@ -699,8 +686,8 @@ private:
     // math
     void vmcall_randint() {
         const auto start = registers.ARG1;
-        const auto end = registers.ARG2;
-        int64_t result;
+        const auto end   = registers.ARG2;
+        int64_t    result;
         if (start == 0 && end == 0)
             result = Random::randint();
         else

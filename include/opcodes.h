@@ -3,50 +3,50 @@
 
 enum class OpCode : uint8_t {
     // program execution management
-    EXIT    = 0x00,
-    VMCALL  = 0x01,
-    CALL    = 0x02,     // 9
-    RET     = 0x03,
-    JMP     = 0x04,     // 9
-    JIF     = 0x05,     // 9
-    JNIF    = 0x06,     // 9
-    JEF     = 0x07,     // 9
-    JNEF    = 0x08,     // 9
-    LOOP    = 0x09,     // 9
-    DEBUG   = 0x0a,
+    EXIT   = 0x00,
+    VMCALL = 0x01,
+    CALL   = 0x02,  // 9
+    RET    = 0x03,
+    JMP    = 0x04,  // 9
+    JIF    = 0x05,  // 9
+    JNIF   = 0x06,  // 9
+    JEF    = 0x07,  // 9
+    JNEF   = 0x08,  // 9
+    LOOP   = 0x09,  // 9
+    DEBUG  = 0x0a,
 
     // stack
-    PUSH    = 0x10,    // 9
-    POP     = 0x11,
-    DUP     = 0x12,
-    PEA     = 0x13,    // 9
-    LOAD    = 0x14,    // 9
-    STORE   = 0x15,    // 9
+    PUSH  = 0x10,  // 9
+    POP   = 0x11,
+    DUP   = 0x12,
+    PEA   = 0x13,  // 9
+    LOAD  = 0x14,  // 9
+    STORE = 0x15,  // 9
 
     // call stack
     PUSHCP = 0x20,
     POPCP  = 0x21,
 
     // registers
-    SETR    = 0x30,     // 10
-    PUSHR   = 0x31,     // 2
-    POPR    = 0x32,     // 2
-    INCR    = 0x33,     // 2
-    DECR    = 0x34,     // 2
+    SETR    = 0x30,  // 10
+    PUSHR   = 0x31,  // 2
+    POPR    = 0x32,  // 2
+    INCR    = 0x33,  // 2
+    DECR    = 0x34,  // 2
     CHECKEF = 0x35,
     CLEAREF = 0x36,
-    MOV     = 0x37,     // 3
-    LEA     = 0x38,     // 10
-    LOADR   = 0x39,     // 10
-    STORER  = 0x3a,     // 10
+    MOV     = 0x37,  // 3
+    LEA     = 0x38,  // 10
+    LOADR   = 0x39,  // 10
+    STORER  = 0x3a,  // 10
 
     // memory
-    ALLOC   = 0x40,
-    FREE    = 0x41,
-    WRITE   = 0x42,
-    READ    = 0x43,
-    WRITEB  = 0x44,
-    READB   = 0x45,
+    ALLOC  = 0x40,
+    FREE   = 0x41,
+    WRITE  = 0x42,
+    READ   = 0x43,
+    WRITEB = 0x44,
+    READB  = 0x45,
 
     // math
     INC = 0x50,
@@ -87,26 +87,26 @@ enum class OpCode : uint8_t {
     CMPGTF = 0x6c,
 
     // basic functions
-    PRINTENDL   = 0x70,
-    PRINTINT    = 0x71,
-    SCANINT     = 0x72,
-    PRINTFLOAT  = 0x73,
-    SCANFLOAT   = 0x74,
-    ITOF        = 0x75,
-    FTOI        = 0x76,
+    PRINTENDL  = 0x70,
+    PRINTINT   = 0x71,
+    SCANINT    = 0x72,
+    PRINTFLOAT = 0x73,
+    SCANFLOAT  = 0x74,
+    ITOF       = 0x75,
+    FTOI       = 0x76,
 };
 
 enum class VMCall : uint8_t {
     // Memory & IO
-    memcpy      = 0x00,
-    printstr    = 0x01,
-    scanstr     = 0x02,
+    memcpy   = 0x00,
+    printstr = 0x01,
+    scanstr  = 0x02,
 
     // Files
-    readfile    = 0x10,
-    writefile   = 0x11,
-    appendfile  = 0x12,
+    readfile   = 0x10,
+    writefile  = 0x11,
+    appendfile = 0x12,
 
     // Math
-    randint     = 0x20,
+    randint = 0x20,
 };

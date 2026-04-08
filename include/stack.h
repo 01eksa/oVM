@@ -6,32 +6,30 @@
 #include "utils.h"
 
 class Stack {
-    
-public:
+  public:
     static constexpr uint64_t DEFAULT_CAPACITY = 512;
 
-private:
-    uint64_t sp = 0;
-    int64_t* data = nullptr;
+  private:
+    uint64_t sp           = 0;
+    int64_t* data         = nullptr;
     uint64_t max_capacity = DEFAULT_CAPACITY;
 
-public:
+  public:
     explicit Stack() {
         data = new int64_t[max_capacity];
     }
 
     explicit Stack(const uint64_t size) {
         max_capacity = size;
-        data = new int64_t[size];
+        data         = new int64_t[size];
     }
 
     ~Stack() {
         delete[] data;
     }
-    
+
     [[nodiscard]] int64_t look(const uint64_t index) const {
-        if (index < max_capacity)
-            return data[index];
+        if (index < max_capacity) return data[index];
 
         throw std::out_of_range("Index out of range");
     }
@@ -55,11 +53,11 @@ public:
     }
 
     void dup() {
-        if (sp == max_capacity)  throw std::overflow_error("Stack overflow");
-        if (sp == 0)  throw std::underflow_error("Stack underflow");
+        if (sp == max_capacity) throw std::overflow_error("Stack overflow");
+        if (sp == 0) throw std::underflow_error("Stack underflow");
 
         const int64_t val = data[sp - 1];
-        data[sp++] = val;
+        data[sp++]        = val;
     }
 
     int64_t pop() {
