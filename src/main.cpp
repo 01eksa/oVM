@@ -1,7 +1,9 @@
 #include <iostream>
 #include <memory>
 #include <string_view>
+#include <format>
 
+#include "config.h"
 #include "loader.h"
 #include "vm.h"
 
@@ -18,9 +20,18 @@ void wait() {
     std::cin.get();
 }
 
-int main(int argc, char* argv[]) {
+int main(const int argc, char* argv[]) {
+    const auto help = std::format(
+        "oVM version {}.{}.{}\n\n"
+        "Arguments: [filename] [options]\n\n"
+        "Options:\n"
+        "--no-pause - no pause after end of program\n"
+        "--debug    - enable debug mode\n",
+        config::major, config::minor, config::patch
+        );
+
     if (argc < 2) {
-        std::cout << "Enter a file as an argument\n";
+        std::cout << help;
         wait();
         return 0;
     }
@@ -35,18 +46,22 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    const std::string file = argv[1];
-    Program           p;
+    const std::string arg = argv[1];
+    if (arg == "--help" || arg == "h") {
+        std::cout << help;
+        return 0;
+    }
 
+    Program p;
     try {
-        p = load(file);
+        p = load(arg);
     } catch (std::exception& e) {
         std::cerr << e.what() << std::endl;
         wait();
         return 1;
     }
 
-    VM vm(std::move(p));
+    VM vm(std::move(p), args.debug);
     try {
         vm.run();
     } catch (std::exception& e) {
