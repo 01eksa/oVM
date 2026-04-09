@@ -8,7 +8,6 @@
 #include "callstack.h"
 #include "memory.h"
 #include "program.h"
-#include "random.h"
 #include "registers.h"
 #include "stack.h"
 #include "utils.h"
@@ -29,17 +28,19 @@ class VM {
     Stack     stack;
     CallStack call_stack;
 
+    bool debug_enabled = true;
+
     bool running = false;
 
   public:
-    explicit VM(Program p)
+    explicit VM(Program p, bool debug_enabled = true)
         : code(std::move(p.code)),
           code_size(p.code_size),
           data(std::move(p.data)),
           data_size(p.data_size),
           stack(p.stack_size ? p.stack_size : Stack::DEFAULT_CAPACITY),
-          call_stack(p.call_stack_size ? p.call_stack_size : CallStack::DEFAULT_CAPACITY) {
-    }
+          call_stack(p.call_stack_size ? p.call_stack_size : CallStack::DEFAULT_CAPACITY),
+          debug_enabled(debug_enabled) {}
     ~VM() = default;
 
     void run() {
@@ -312,7 +313,7 @@ class VM {
     }
 
     void op_read() {
-        const auto ptr = stack.pop_ptr();
+        const auto ptr  = stack.pop_ptr();
         const auto bits = Memory::read(ptr);
 
         stack.push(bits);
@@ -327,7 +328,7 @@ class VM {
     }
 
     void op_read_byte() {
-        const auto ptr = stack.pop_ptr();
+        const auto ptr  = stack.pop_ptr();
         const auto bits = Memory::read<uint8_t>(ptr);
 
         stack.push(bits);
@@ -684,9 +685,9 @@ class VM {
         const auto end   = registers.ARG2;
         int64_t    result;
         if (start == 0 && end == 0)
-            result = Random::randint();
+            result = utils::randint();
         else
-            result = Random::randint(start, end);
+            result = utils::randint(start, end);
 
         stack.push(result);
     }

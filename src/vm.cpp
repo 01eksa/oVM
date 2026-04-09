@@ -149,6 +149,8 @@ std::string VM::format_stack() const {
 }
 
 void VM::op_debug() {
+    if (!debug_enabled) return;
+
     bool debug = true;
     std::cout << "Debug mode\n"
               << "Commands:\n"
