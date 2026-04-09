@@ -24,9 +24,9 @@ AlignConsecutiveAssignments:
   AlignCompound: false
   PadOperators: true
 
-AllowShortFunctionsOnASingleLine: None
-AllowShortBlocksOnASingleLine: Never
-AllowShortLambdasOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortBlocksOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Empty
 AllowShortEnumsOnASingleLine: false
 
 Cpp11BracedListStyle: true
