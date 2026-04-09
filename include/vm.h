@@ -179,9 +179,8 @@ class VM {
     void op_load() {
         const auto offset = eat<uint64_t>();
         if (offset + sizeof(int64_t) <= data_size) {
-            const auto ptr = reinterpret_cast<void*>(&data[offset]);
-            int64_t    bits;
-            std::memcpy(&bits, ptr, sizeof(bits));
+            const auto ptr  = reinterpret_cast<void*>(&data[offset]);
+            const auto bits = Memory::read(ptr);
 
             stack.push(bits);
         } else
@@ -193,7 +192,7 @@ class VM {
         if (offset + sizeof(int64_t) <= data_size) {
             const auto ptr  = reinterpret_cast<void*>(&data[offset]);
             const auto bits = stack.pop();
-            std::memcpy(ptr, &bits, sizeof(bits));
+            Memory::write(ptr, bits);
         } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
@@ -272,9 +271,8 @@ class VM {
         const auto target = eat<uint8_t>();
         const auto offset = eat<uint64_t>();
         if (offset + sizeof(int64_t) <= data_size) {
-            const auto ptr = reinterpret_cast<void*>(&data[offset]);
-            int64_t    bits;
-            std::memcpy(&bits, ptr, sizeof(bits));
+            const auto ptr  = reinterpret_cast<void*>(&data[offset]);
+            const auto bits = Memory::read(ptr);
 
             write_reg(target, bits);
         } else
@@ -287,7 +285,7 @@ class VM {
         if (offset + sizeof(int64_t) <= data_size) {
             const auto target = reinterpret_cast<void*>(&data[offset]);
             const auto bits   = read_reg(source);
-            std::memcpy(target, &bits, sizeof(bits));
+            Memory::write(target, bits);
         } else
             throw std::runtime_error(error_message("Offset larger than data size"));
     }
@@ -310,13 +308,12 @@ class VM {
         const auto bits = stack.pop();
         const auto ptr  = stack.pop_ptr();
 
-        std::memcpy(ptr, &bits, sizeof(bits));
+        Memory::write(ptr, bits);
     }
 
     void op_read() {
         const auto ptr = stack.pop_ptr();
-        int64_t    bits;
-        std::memcpy(&bits, ptr, sizeof(bits));
+        const auto bits = Memory::read(ptr);
 
         stack.push(bits);
     }
@@ -326,13 +323,12 @@ class VM {
         const auto ptr  = stack.pop_ptr();
         const auto byte = static_cast<uint8_t>(bits);
 
-        std::memcpy(ptr, &byte, sizeof(byte));
+        Memory::write<uint8_t>(ptr, byte);
     }
 
     void op_read_byte() {
         const auto ptr = stack.pop_ptr();
-        uint8_t    bits;
-        std::memcpy(&bits, ptr, sizeof(bits));
+        const auto bits = Memory::read<uint8_t>(ptr);
 
         stack.push(bits);
     }
