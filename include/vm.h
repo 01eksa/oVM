@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <format>
@@ -14,15 +15,19 @@
 
 class VM {
     using Handler = void (VM::*)();
+    using Segment = std::unique_ptr<uint8_t[]>;
 
-    Handler dispatch[256]        = {nullptr};
-    Handler vmcall_dispatch[256] = {nullptr};
+    static constexpr auto ops     = 128;
+    static constexpr auto vmcalls = 64;
 
-    std::unique_ptr<uint8_t[]> code;
-    uint64_t                   code_size;
+    Handler op_dispatch[ops];
+    Handler vmcall_dispatch[vmcalls] = {nullptr};
 
-    std::unique_ptr<uint8_t[]> data;
-    uint64_t                   data_size;
+    Segment  code;
+    uint64_t code_size;
+
+    Segment  data;
+    uint64_t data_size;
 
     Registers registers;
     Stack     stack;
@@ -40,23 +45,26 @@ class VM {
           data_size(p.data_size),
           stack(p.stack_size ? p.stack_size : Stack::DEFAULT_CAPACITY),
           call_stack(p.call_stack_size ? p.call_stack_size : CallStack::DEFAULT_CAPACITY),
-          debug_enabled(debug_enabled) {}
+          debug_enabled(debug_enabled) {
+        std::ranges::fill(op_dispatch, &VM::op_illegal);
+        std::ranges::fill(vmcall_dispatch, &VM::vmcall_illegal);
+
+        init_dispatch();
+        init_vmcall_dispatch();
+    }
     ~VM() = default;
 
     void run() {
-        init_dispatch();
-        init_vmcall_dispatch();
-
         running = true;
 
         while (running) {
             const auto op = eat<uint8_t>();
-
-            if (const auto handler = dispatch[op]) {
-                (this->*handler)();
-            } else {
-                throw std::runtime_error(std::format("Unknown command: 0x{:x}", op));
+            if (op >= ops) [[unlikely]] {
+                op_illegal();
             }
+
+            const auto handler = op_dispatch[op];
+            (this->*handler)();
         }
     }
 
@@ -101,16 +109,22 @@ class VM {
         return value;
     }
 
+    // Ops
+    void op_illegal() {
+        throw std::runtime_error(std::format("Illegal command: 0x{:02x}", code[registers.CP-1]));
+    }
+
     // program execution management
     void op_exit() {
         running = false;
     }
 
     void op_vmcall() {
-        if (const auto handler = vmcall_dispatch[registers.FR])
-            (this->*handler)();
-        else
-            throw std::runtime_error(std::format("Unknown vmcall: 0x{:x}", registers.FR));
+        if (registers.FR >= vmcalls || registers.FR < 0) [[unlikely]]
+            vmcall_illegal();
+
+        const auto handler = vmcall_dispatch[registers.FR];
+        (this->*handler)();
     }
 
     void op_call() {
@@ -596,6 +610,10 @@ class VM {
     }
 
     // VM calls
+    void vmcall_illegal() {
+        throw std::runtime_error(std::format("Illegal vmcall: 0x{:x}", registers.FR));
+    }
+
     // Memory & IO
     void vmcall_memcpy() {
         const auto dest = reinterpret_cast<void*>(static_cast<uintptr_t>(registers.ARG1));
