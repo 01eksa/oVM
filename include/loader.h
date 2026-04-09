@@ -26,11 +26,11 @@ inline Program load(const std::string& filename) {
     OVMHeader header{};
     ifile.read(reinterpret_cast<char*>(&header), sizeof(header));
 
-    if (header.format != config::MAGIC) {
+    if (header.format != config::magic) {
         throw std::runtime_error(std::format("Wrong format: {:x}", header.format));
     }
 
-    if (header.version_major != config::MAJOR || header.version_minor > config::MINOR) {
+    if (header.version_major != config::major || header.version_minor > config::minor) {
         throw std::runtime_error(
             "The binary version is newer than the virtual machine version. Please install the update."
         );
