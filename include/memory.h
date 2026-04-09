@@ -23,4 +23,16 @@ class Memory {
         std::memcpy(&val, ptr, sizeof(int64_t));
         return val;
     }
+
+    template <typename T>
+    static void write(void* ptr, const T val) {
+        std::memcpy(ptr, &val, sizeof(T));
+    }
+
+    template <typename T>
+    [[nodiscard]] static int64_t read(const void* ptr) {
+        T val;
+        std::memcpy(&val, ptr, sizeof(T));
+        return val;
+    }
 };
