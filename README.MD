@@ -325,14 +325,18 @@ The resulting binary is `build/VM` (Linux/macOS) or `build/VM.exe` (Windows).
 
 ## Usage
 
-```
-VM <file.ovm> [options]
+```bash
+#Linux:
+./VM <file.ovm> [options]
+
+#Windows
+VM.exe <file.ovm> [options]
 ```
 
-| Option       | Description                                                |
-|--------------|------------------------------------------------------------|
-| `--no-pause` | Exit immediately after execution (no "Press Enter" prompt) |
-| `--debug`    | Reserved for future use                                    |
+| Option       | Description                                                             |
+|--------------|-------------------------------------------------------------------------|
+| `--no-pause` | Exit immediately after execution (no "Press Enter" prompt)              |
+| `--debug`    | Enable debug mode (without this flag DEBUG instruction will be ignored) |
 
 ### Debugger
 
