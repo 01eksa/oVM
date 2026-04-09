@@ -25,6 +25,10 @@ class CallStack {
         delete[] data;
     }
 
+    CallStack(const CallStack&) = delete;
+
+    CallStack& operator=(const CallStack&) = delete;
+
     void push(const std::size_t val) {
         if (index == max_capacity) {
             throw std::overflow_error("Stack overflow");

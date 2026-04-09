@@ -28,6 +28,10 @@ class Stack {
         delete[] data;
     }
 
+    Stack(const Stack&) = delete;
+
+    Stack& operator=(const Stack&) = delete;
+
     [[nodiscard]] int64_t look(const uint64_t index) const {
         if (index < max_capacity) return data[index];
 
