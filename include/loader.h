@@ -32,7 +32,13 @@ inline Program load(const std::string& filename) {
 
     if (header.version_major != config::major || header.version_minor > config::minor) {
         throw std::runtime_error(
-            "The binary version is newer than the virtual machine version. Please install the update."
+            std::format(
+                "VM {}.{} does not support {}.{} binaries",
+                config::major,
+                config::minor,
+                header.version_major,
+                header.version_minor
+            )
         );
     }
 
