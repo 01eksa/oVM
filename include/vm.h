@@ -20,13 +20,13 @@ class VM {
     static constexpr auto ops     = 128;
     static constexpr auto vmcalls = 64;
 
-    Handler op_dispatch[ops] = {nullptr};
+    Handler op_dispatch[ops]         = {nullptr};
     Handler vmcall_dispatch[vmcalls] = {nullptr};
 
-    Segment  code;
+    Segment     code;
     std::size_t code_size;
 
-    Segment  data;
+    Segment     data;
     std::size_t data_size;
 
     Registers registers;
@@ -34,8 +34,7 @@ class VM {
     CallStack call_stack;
 
     bool debug_enabled = true;
-
-    bool running = false;
+    bool running       = false;
 
   public:
     explicit VM(Program p, const bool debug_enabled = true)
@@ -111,7 +110,7 @@ class VM {
 
     // Ops
     void op_illegal() {
-        throw std::runtime_error(std::format("Illegal command: 0x{:02x}", code[registers.CP-1]));
+        throw std::runtime_error(std::format("Illegal command: 0x{:02x}", code[registers.CP - 1]));
     }
 
     // program execution management
