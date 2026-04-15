@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 #include <cstdint>
 
 enum class RegisterCode {
@@ -24,9 +25,9 @@ enum class RegisterCode {
 
 struct Registers {
     // VM registers
-    uint64_t CP = 0;      // command pointer
-    bool     BF = false;  // bool flag
-    bool     EF = false;  // error flag
+    std::size_t CP = 0;      // command pointer
+    bool        BF = false;  // bool flag
+    bool        EF = false;  // error flag
 
     // User registers
     static constexpr int REG_COUNT = 32;

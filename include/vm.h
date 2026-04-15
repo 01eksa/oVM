@@ -20,14 +20,14 @@ class VM {
     static constexpr auto ops     = 128;
     static constexpr auto vmcalls = 64;
 
-    Handler op_dispatch[ops];
+    Handler op_dispatch[ops] = {nullptr};
     Handler vmcall_dispatch[vmcalls] = {nullptr};
 
     Segment  code;
-    uint64_t code_size;
+    std::size_t code_size;
 
     Segment  data;
-    uint64_t data_size;
+    std::size_t data_size;
 
     Registers registers;
     Stack     stack;
@@ -38,7 +38,7 @@ class VM {
     bool running = false;
 
   public:
-    explicit VM(Program p, bool debug_enabled = true)
+    explicit VM(Program p, const bool debug_enabled = true)
         : code(std::move(p.code)),
           code_size(p.code_size),
           data(std::move(p.data)),
